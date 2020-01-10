@@ -1,0 +1,11 @@
+{
+  "name": "datagraph",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:Hivemapper/datagraph.git",
+  "author": "Andre Sanchez <andrezacsanchez@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "invariant": "^2.2.4"
+  }
+}
