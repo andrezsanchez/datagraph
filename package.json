@@ -1,10 +1,19 @@
 {
   "name": "datagraph",
+  "description": "A framework for representing application data in a graph.",
+  "keywords": ["graph", "framework", "data", "node", "redux", "functional", "state machine"],
   "version": "0.0.0",
   "main": "src/index.js",
-  "repository": "git@github.com:Hivemapper/datagraph.git",
+  "repository": "https://github.com/Hivemapper/datagraph.git",
   "author": "Andre Sanchez <andrezacsanchez@gmail.com>",
   "license": "MIT",
+  "homepage": "https://github.com/Hivemapper/datagraph",
+  "bugs": {
+    "url": "https://github.com/Hivemapper/datagraph/issues"
+  },
+  "engines": {
+    "node": ">=6.17.1"
+  },
   "dependencies": {
     "invariant": "^2.2.4"
   }
