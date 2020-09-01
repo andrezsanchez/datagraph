@@ -11,7 +11,7 @@
     "state machine"
   ],
   "version": "0.0.1",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "repository": "https://github.com/Hivemapper/datagraph.git",
   "author": "Andre Sanchez <andrezacsanchez@gmail.com>",
   "license": "MIT",
@@ -28,7 +28,14 @@
   "devDependencies": {
     "@types/invariant": "2.2.33",
     "@types/tape": "4.13.0",
+    "tap-dot": "2.0.0",
     "tape": "5.0.1",
-    "ts-mockito": "2.6.1"
+    "ts-mockito": "2.6.1",
+    "ts-node": "9.0.0",
+    "typescript": "4.0.2"
+  },
+  "scripts": {
+    "build": "tsc -p ./tsconfig.json",
+    "test": "ts-node -P ./tsconfig.json src/__test__/DataGraph.spec.ts | tap-dot"
   }
 }
