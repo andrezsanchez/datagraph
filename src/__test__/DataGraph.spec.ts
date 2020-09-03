@@ -1,7 +1,7 @@
 import test from 'tape';
 import { anything, deepEqual, instance, mock, spy, verify, when } from 'ts-mockito';
 import { DataGraph } from '../DataGraph';
-import { DataNode, ActionHandlers } from '../DataNode';
+import { DataNode, ActionHandlerMap } from '../DataNode';
 import { Action } from '../Action';
 import { SetChange, calculateSetChange } from '../SetChange';
 import { MockDispatcher } from './MockDispatcher';
@@ -19,7 +19,7 @@ function graphNodes(graph: DataGraph): Set<DataNode> {
 class MockDataNode extends DataNode {
   public dependencies: Set<DataNode> = new Set();
   public children: Set<DataNode> = new Set();
-  public actionHandlers?: ActionHandlers;
+  public actionHandlers?: ActionHandlerMap<unknown>;
 
   getDependencies() {
     return this.dependencies;
@@ -30,7 +30,7 @@ class MockDataNode extends DataNode {
   }
 }
 
-const dummyAction: Action<string> = { type: 'dummy', payload: 'payload' };
+const dummyAction: Action<'dummy', 'payload'> = { type: 'dummy', payload: 'payload' };
 
 class TestFixture {
   public graph: DataGraph;

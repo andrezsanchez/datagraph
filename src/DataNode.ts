@@ -5,14 +5,26 @@ import { Dispatch } from './Dispatch';
 /**
  * An interface for an object whose properties are all handler functions for actions.
  */
-export interface ActionHandlers {
-  [key: string]: (action: Action<any>) => void;
+export type ActionHandlerMap<K> = {
+  [T in keyof K]: (action: Action<T, K[T]>) => void;
+};
+
+export type UnknownActionHandlerMap = ActionHandlerMap<{ [key in (string | number)]: unknown }>;
+
+export interface ActionHandler<K> {
+  readonly actionHandlers: ActionHandlerMap<K>;
 }
+
+/**
+ * A unique symbol used to mark classes as being DataNode instances.
+ */
+const dataNode = Symbol('DATANODE_MARKER');
 
 /**
  * A barebones base data node class. This abstract class needs to be extended to be used.
  */
-export abstract class DataNode {
+export abstract class DataNode<K = {}, AHM = {}> {
+  private [dataNode] = true;
   /**
    * A convenience version counter. This is used in conjunction with `incrementVersion`.
    */
@@ -27,7 +39,9 @@ export abstract class DataNode {
   /**
    * A set of action handlers that act like a reducer function. 
    */
-  public readonly actionHandlers?: ActionHandlers;
+  public readonly actionHandlers?: ActionHandlerMap<AHM>;
+
+  public getActionHandlers?(): ActionHandlerMap<AHM>;
 
   /**
    * A node may return a set of child nodes for DGF to manage.
@@ -75,4 +89,8 @@ export abstract class DataNode {
    * A lifecycle function to deal with any side effects.
    */
   manageSideEffects(dispatch: Dispatch) {}
+}
+
+export function isDataNode(value: unknown): value is DataNode {
+  return (value as DataNode)?.[dataNode] === true;
 }
