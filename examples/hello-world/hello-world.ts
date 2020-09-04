@@ -39,7 +39,7 @@ const str = createGettableNode(
 );
 graph.addNode(str);
 
-const strLenNode = createGettableNode<number, { string: string }>(
+const strLenNode = createGettableNode(
   { string: str },
   (props) => {
     return props.string.length;

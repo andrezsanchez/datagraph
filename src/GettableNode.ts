@@ -1,8 +1,7 @@
-import { AnyProps } from './AnyProps';
 import { Gettable } from './Gettable';
 import { Clone } from './Clone';
 import { Equality } from './Equality';
-import { isDataNode, DataNode, ActionHandlerMap, ActionHandler } from '../src/DataNode';
+import { isDataNode, DataNode } from '../src/DataNode';
 
 function primitiveClone<T>(primitive: T): T {
   return primitive;
@@ -129,8 +128,15 @@ export abstract class GettableNode<T, Props> extends DataNode {
   }
 }
 
+/**
+ * This is used to improve the type inference for `createGettableNode`.
+ */
+export type RootPropNodeMap<P> = {
+  readonly [K in keyof P]: DataNode & Gettable<GettableDataNode<P[K]>>;
+}
+
 export function createGettableNode<T, Props extends PropMap<Props>>(
-  props: PropNodeMap<Props>,
+  props: RootPropNodeMap<Props>,
   calculateValue: (props: Readonly<Props>) => T,
   equals: Equality<T> = simpleEquality,
   clone: Clone<T> = primitiveClone,
