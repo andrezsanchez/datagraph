@@ -36,6 +36,6 @@
   },
   "scripts": {
     "build": "tsc -p ./tsconfig.json",
-    "test": "ts-node -P ./tsconfig.json src/__test__/DataGraph.spec.ts | tap-dot"
+    "test": "tsc -p ./tsconfig.test.json && ts-node -P ./tsconfig.json ./node_modules/.bin/tape './src/**/*.spec.ts' | tap-dot"
   }
 }
