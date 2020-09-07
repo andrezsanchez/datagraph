@@ -1,4 +1,4 @@
-import { ConstantNode } from './../../src/ConstantNode';
+import { ConstantNode } from '../../src/ConstantNode';
 import { AnyAction } from '../../src/Action';
 import { DataGraph } from '../../src/DataGraph';
 import { ToggleAction, ToggleAction2 } from './ToggleAction';
