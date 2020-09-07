@@ -3,7 +3,7 @@ import { GettableOrValue, isGettableDataNode } from './GettableNodeOrValue';
 import { Gettable } from './Gettable';
 import { Clone } from './Clone';
 import { Equality } from './Equality';
-import { isDataNode, DataNode, LegacyDataNode } from '../src/DataNode';
+import { DataNode } from '../src/DataNode';
 
 function primitiveClone<T>(primitive: T): T {
   return primitive;
@@ -11,10 +11,6 @@ function primitiveClone<T>(primitive: T): T {
 
 function simpleEquality<T>(a: T, b: T): boolean {
   return a === b;
-}
-
-interface NodeOps<T> {
-  equals: Equality<T>;
 }
 
 export type PropNodeMap<P> = {
@@ -74,7 +70,7 @@ export abstract class GettableNode<T, Props> implements DataNode {
   private readonly dependencies: Set<DataNode> = new Set();
 
   constructor(
-    private readonly _props: PropNodeMap<Props>,
+    private readonly props: PropNodeMap<Props>,
   ) {
     this.propValues = Object.create(null) as PropMap<Props>;
   }
@@ -82,8 +78,8 @@ export abstract class GettableNode<T, Props> implements DataNode {
   protected equals(a: T, b: T) {
     return a === b;
   }
+
   nodeDidUnmount() {
-    
     // Remove any value just in case there is something to GC.
     (this.value as unknown) = undefined;
 
@@ -117,7 +113,7 @@ export abstract class GettableNode<T, Props> implements DataNode {
     clearObject(this.propValues);
     setPropValues(
       this.propValues,
-      this._props,
+      this.props,
       this.dependencies,
     );
     this.set(this.calculateValue(this.propValues));
