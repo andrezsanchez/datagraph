@@ -1,7 +1,7 @@
 import test from 'tape';
 import { anything, deepEqual, instance, mock, spy, verify, when } from 'ts-mockito';
 import { DataGraph } from '../DataGraph';
-import { DataNode, ActionHandlerMap } from '../DataNode';
+import { DataNode, ActionHandlerMap, LegacyDataNode } from '../DataNode';
 import { Action } from '../Action';
 import { SetChange, calculateSetChange } from '../SetChange';
 import { MockDispatcher } from './MockDispatcher';
@@ -16,7 +16,7 @@ function graphNodes(graph: DataGraph): Set<DataNode> {
   return new Set(graph.nodeContextMap.keys());
 }
 
-class MockDataNode extends DataNode {
+class MockDataNode extends LegacyDataNode {
   public dependencies: Set<DataNode> = new Set();
   public children: Set<DataNode> = new Set();
   public actionHandlers?: ActionHandlerMap<unknown>;

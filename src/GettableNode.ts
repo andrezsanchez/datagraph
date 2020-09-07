@@ -1,7 +1,9 @@
+import { dataNode } from './DataNode';
+import { GettableOrValue, isGettableDataNode } from './GettableNodeOrValue';
 import { Gettable } from './Gettable';
 import { Clone } from './Clone';
 import { Equality } from './Equality';
-import { isDataNode, DataNode } from '../src/DataNode';
+import { isDataNode, DataNode, LegacyDataNode } from '../src/DataNode';
 
 function primitiveClone<T>(primitive: T): T {
   return primitive;
@@ -15,19 +17,8 @@ interface NodeOps<T> {
   equals: Equality<T>;
 }
 
-type GettableDataNode<T> = T | (DataNode & Gettable<GettableDataNode<T>>);
-function isGettableDataNode<T>(x: T | GettableDataNode<T>): x is (DataNode & Gettable<GettableDataNode<T>>) {
-  if (isDataNode(x)) {
-    return typeof x.get === 'function';
-  }
-
-  return false;
-}
-
-// type GettableDataNode<T> = DataNode & Gettable<T>;
-
 export type PropNodeMap<P> = {
-  readonly [K in keyof P]: GettableDataNode<P[K]>;
+  readonly [K in keyof P]: GettableOrValue<P[K]>;
 }
 
 export type PropMap<P> = {
@@ -71,9 +62,12 @@ function setPropValues<P>(
   }
 }
 
-export abstract class GettableNode<T, Props> extends DataNode {
+export abstract class GettableNode<T, Props> implements DataNode {
+  [dataNode]: true = true;
+  private version: number = 0;
+
   private value!: T;
-  private initialized: boolean = false;
+  private hasValidValue: boolean = false;
 
   private propValues!: Props;
 
@@ -82,12 +76,19 @@ export abstract class GettableNode<T, Props> extends DataNode {
   constructor(
     private readonly _props: PropNodeMap<Props>,
   ) {
-    super();
     this.propValues = Object.create(null) as PropMap<Props>;
   }
 
   protected equals(a: T, b: T) {
     return a === b;
+  }
+  nodeDidUnmount() {
+    
+    // Remove any value just in case there is something to GC.
+    (this.value as unknown) = undefined;
+
+    // The node's value is invalid now so if someone tries to get() it they should get an error.
+    this.hasValidValue = false;
   }
 
   protected clone(value: T): T {
@@ -97,10 +98,14 @@ export abstract class GettableNode<T, Props> extends DataNode {
   protected abstract calculateValue(props: PropMap<Props>): T;
 
   private set(value: T) {
-    if (!this.initialized || !this.equals(this.value, value)) {
+    if (!this.hasValidValue || !this.equals(this.value, value)) {
       this.value = this.clone(value);
-      this.incrementVersion();
+      this.version += 1;
     }
+  }
+
+  getVersion() {
+    return this.version;
   }
 
   getDependencies() {
@@ -117,11 +122,12 @@ export abstract class GettableNode<T, Props> extends DataNode {
     );
     this.set(this.calculateValue(this.propValues));
 
-    this.initialized = true;
+    this.hasValidValue = true;
   }
 
   get(): T {
-    if (!this.initialized) {
+    // This should never be called before the initialization.
+    if (!this.hasValidValue) {
       throw new Error('DGF lifecycle error');
     }
     return this.value;
@@ -132,9 +138,12 @@ export abstract class GettableNode<T, Props> extends DataNode {
  * This is used to improve the type inference for `createGettableNode`.
  */
 export type RootPropNodeMap<P> = {
-  readonly [K in keyof P]: DataNode & Gettable<GettableDataNode<P[K]>>;
+  readonly [K in keyof P]: DataNode & Gettable<GettableOrValue<P[K]>>;
 }
 
+/**
+ * A convenient way to define a GettableNode without making a class.
+ */
 export function createGettableNode<T, Props extends PropMap<Props>>(
   props: RootPropNodeMap<Props>,
   calculateValue: (props: Readonly<Props>) => T,

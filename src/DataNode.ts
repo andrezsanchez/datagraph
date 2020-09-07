@@ -18,13 +18,29 @@ export interface ActionHandler<K> {
 /**
  * A unique symbol used to mark classes as being DataNode instances.
  */
-const dataNode = Symbol('DATANODE_MARKER');
+export const dataNode = Symbol('DATANODE_MARKER');
+
+export interface DataNode<AHM = {}> {
+  [dataNode]: true;
+  updateValue?(): void;
+  getVersion(): number;
+  actionHandlers?: ActionHandlerMap<AHM>;
+  getActionHandlers?(): ActionHandlerMap<AHM>;
+  // Dynamic
+  getDependencies?(): Set<DataNode>;
+  // Dynamic
+  getChildNodes?(): Set<DataNode>;
+  nodeDidUnmount?(): void;
+  manageSideEffects?(dispatch: Dispatch): void;
+  // get(): DataNode & Gettable<T>;
+}
 
 /**
  * A barebones base data node class. This abstract class needs to be extended to be used.
  */
-export abstract class DataNode<K = {}, AHM = {}> {
-  private [dataNode] = true;
+export abstract class LegacyDataNode<AHM = {}> {
+  public readonly [dataNode] = true;
+
   /**
    * A convenience version counter. This is used in conjunction with `incrementVersion`.
    */
@@ -41,7 +57,12 @@ export abstract class DataNode<K = {}, AHM = {}> {
    */
   public readonly actionHandlers?: ActionHandlerMap<AHM>;
 
-  public getActionHandlers?(): ActionHandlerMap<AHM>;
+  public getActionHandlers(): ActionHandlerMap<AHM>;
+
+  // TODO: Fix this.
+  public getActionHandlers(): ActionHandlerMap<{}> {
+    return this.actionHandlers ?? {};
+  };
 
   /**
    * A node may return a set of child nodes for DGF to manage.
@@ -52,7 +73,13 @@ export abstract class DataNode<K = {}, AHM = {}> {
    * Return a set of dependencies for DGF to track. If unimplemented DGF will populate a set
    * automatically using the `props` field.
    */
-  getDependencies?(): Set<DataNode>;
+  getDependencies?(): Set<DataNode> {
+    if (this.props) {
+      const props = this.props as AnyProps;
+      return new Set<DataNode>(Object.keys(props).map(key => (props[key] as DataNode)));
+    }
+    return new Set();
+  }
 
   /**
    * A lifecycle function that is called after a node is removed from the data graph. For example,

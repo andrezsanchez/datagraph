@@ -1,6 +1,5 @@
 import invariant from 'invariant';
 import { DataNode, UnknownActionHandlerMap } from './DataNode';
-import { AnyProps } from './AnyProps';
 import { AnyAction } from './Action';
 import { mergeSet } from './mergeSet';
 import { SetChange, calculateSetChange } from './SetChange';
@@ -25,10 +24,7 @@ function getNodeDependencies(node: DataNode): Set<DataNode> {
   if (node.getDependencies) {
     return node.getDependencies();
   }
-  if (node.props) {
-    const props = node.props as AnyProps;
-    return new Set<DataNode>(Object.keys(props).map(key => (props[key] as DataNode)));
-  }
+
   return new Set<DataNode>();
 }
 
@@ -43,6 +39,7 @@ class NodeContext {
   constructor(
     public node: DataNode,
   ) {
+    // this.actionHandlers = node?.getActionHandlers?.() ?? Object.create(null);
     this.actionHandlers = node?.getActionHandlers?.() ?? node.actionHandlers ?? Object.create(null);
   }
 
@@ -51,16 +48,18 @@ class NodeContext {
    * if the node's version changed.
    */
   updateValue(): boolean {
+    if (!this.node.updateValue) {
+      // If there is no `updateValue` method then the value should never change.
+      return false;
+    }
+
     this.node.updateValue();
+
     const versionBefore = this.version;
     const versionAfter = this.node.getVersion();
     this.version = versionAfter;
 
     return (versionBefore !== versionAfter);
-  }
-
-  isOutdated(): boolean {
-    return this.version !== this.node.getVersion();
   }
 }
 
@@ -210,7 +209,9 @@ export class DataGraph {
     });
 
     changedNodes.forEach((node:DataNode) => {
-      node.manageSideEffects(dispatch);
+      if (node.manageSideEffects) {
+        node.manageSideEffects(dispatch);
+      }
     });
 
     return changedNodes;

@@ -28,13 +28,13 @@ const valueNode = createStateMachineNode({
 });
 graph.addNode(valueNode);
 
-const nodeA = new NodeA({ value: valueNode });
+const nodeA = new NodeA();
 graph.addNode(nodeA);
 
-const str = createGettableNode(
-  { value: valueNode },
+const str = createGettableNode<string, { value: string }>(
+  { value: nodeA },
   (props) => {
-    return props.value ? 'Hello, world.' : 'Wat';
+    return (props.value === 'bob') ? 'Hello, world.' : 'Wat';
   },
 );
 graph.addNode(str);

@@ -1,10 +1,15 @@
-import { DataNode } from './DataNode';
+import { DataNode, dataNode } from './DataNode';
 
-export class ConstantNode<T> extends DataNode {
+export class ConstantNode<T> implements DataNode {
+  [dataNode]: true
+
   constructor (
     private readonly value: T,
   ) {
-    super();
+  }
+
+  getVersion() {
+    return 0;
   }
 
   get(): T {

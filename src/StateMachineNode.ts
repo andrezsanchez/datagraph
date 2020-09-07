@@ -2,7 +2,7 @@ import { Action } from './Action';
 import { Gettable } from './Gettable';
 import { Clone } from './Clone';
 import { Equality } from './Equality';
-import { DataNode, ActionHandlerMap } from './DataNode';
+import { DataNode, ActionHandlerMap, LegacyDataNode } from './DataNode';
 
 function primitiveClone<T>(primitive: T): T {
   return primitive;
@@ -27,7 +27,7 @@ export type FunctionalActionHandlerMap<T, N> = {
   ) => T;
 };
 
-export abstract class StateMachineNode<T, AHM> extends DataNode {
+export abstract class StateMachineNode<T, AHM> extends LegacyDataNode {
   private value!: T;
   private initialized: boolean = false;
 
