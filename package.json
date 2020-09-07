@@ -11,7 +11,7 @@
     "state machine"
   ],
   "version": "0.0.1",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "repository": "https://github.com/Hivemapper/datagraph.git",
   "author": "Andre Sanchez <andrezacsanchez@gmail.com>",
   "license": "MIT",
