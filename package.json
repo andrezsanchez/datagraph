@@ -1,5 +1,5 @@
 {
-  "name": "datagraph",
+  "name": "@datagraph/dgf",
   "description": "A framework for representing application data in a graph.",
   "keywords": [
     "graph",
