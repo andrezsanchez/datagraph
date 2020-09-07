@@ -1,6 +1,10 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["src/**/*.build-test.ts"],
+  "include": [
+    "./types/*.d.ts",
+    "./src/**/*.build-test.ts",
+    "./examples/**/*.build-test.ts"
+  ],
   "exclude": [],
   "compilerOptions": {
     "noEmit": true
