@@ -1,4 +1,4 @@
-import { NodeA } from './NodeA';
+import { ConstantNode } from './../../src/ConstantNode';
 import { AnyAction } from '../../src/Action';
 import { DataGraph } from '../../src/DataGraph';
 import { DataNode } from '../../src/DataNode';
@@ -28,13 +28,13 @@ const valueNode = createStateMachineNode({
 });
 graph.addNode(valueNode);
 
-const nodeA = new NodeA();
+const nodeA = new ConstantNode('bob');
 graph.addNode(nodeA);
 
-const str = createGettableNode<string, { value: string }>(
-  { value: nodeA },
+const str = createGettableNode<string, { value: boolean }>(
+  { value: valueNode },
   (props) => {
-    return (props.value === 'bob') ? 'Hello, world.' : 'Wat';
+    return props.value ? 'Hello, world.' : 'Wat';
   },
 );
 graph.addNode(str);
