@@ -6,7 +6,7 @@ export enum MaybeType {
   Unset,
 }
 
-export interface MaybeSet<T> {
+export interface MaybeValue<T> {
   type: MaybeType.Value;
   value: T;
 }
@@ -18,16 +18,19 @@ export interface MaybeUnset {
 /**
  * A type that allows for out of band indication of the absence of a value.
  */
-export type Maybe<T> = MaybeSet<T> | MaybeUnset;
+export type Maybe<T> = MaybeValue<T> | MaybeUnset;
 
 export class MaybeOps {
+  // Prevent instantiation.
+  private constructor() {}
+
   public static unset(): MaybeUnset {
     return {
       type: MaybeType.Unset,
     };
   }
 
-  public static value<T>(value: T): MaybeSet<T> {
+  public static value<T>(value: T): MaybeValue<T> {
     return {
       type: MaybeType.Value,
       value,
@@ -63,8 +66,12 @@ export class MaybeOps {
     return maybe.value;
   }
 
-  public static isValue<T>(maybe: Maybe<T>): boolean {
+  public static isValue<T>(maybe: Maybe<T>): maybe is MaybeValue<T> {
     return maybe.type === MaybeType.Value;
+  }
+
+  public static isUnset<T>(maybe: Maybe<T>): maybe is MaybeUnset {
+    return maybe.type === MaybeType.Unset;
   }
 
   public static getClone<T>(cloneT: Clone<T>): Clone<Maybe<T>> {
@@ -76,6 +83,22 @@ export class MaybeOps {
       return {
         type: MaybeType.Value,
         value: cloneT ? cloneT(source.value) : source.value,
+      };
+    }
+
+    return {
+      type: MaybeType.Unset,
+    };
+  }
+
+  public static map<From, To>(
+    source: Maybe<From>,
+    map: (from: From) => To,
+  ): Maybe<To> {
+    if (source.type === MaybeType.Value) {
+      return {
+        type: MaybeType.Value,
+        value: map(source.value),
       };
     }
 
